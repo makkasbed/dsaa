@@ -1,4 +1,5 @@
 package com.logiclabent.dsaa.main;
+import com.logiclabent.dsaa.problems.ChangeMaking;
 import com.logiclabent.dsaa.problems.CoinRow;
 
 import java.util.ArrayList;
@@ -7,7 +8,8 @@ import java.util.Arrays;
 public class DSAA {
     public static void main(String [] args)
     {
-         callRow();
+         //callRow();
+        changeMaking();
     }
     public static void callRow()
     {
@@ -26,5 +28,16 @@ public class DSAA {
         System.out.println(coinRow.returnOptimal());
         System.out.println("Respective Indexes");
         System.out.println(coinRow.returnIndexes());
+    }
+    public static void changeMaking()
+    {
+        int [] d=new int[]{0,1,3,4};
+        int n=6;
+        ChangeMaking changeMaking=new ChangeMaking();
+        int [] f=changeMaking.coinChange(d,n);
+        System.out.println(Arrays.toString(d));
+        System.out.println(Arrays.toString(f));
+        System.out.println(f[n-1]);
+        System.out.println(changeMaking.back());
     }
 }
