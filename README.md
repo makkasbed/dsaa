@@ -9,8 +9,9 @@ The following problems have been implemented:
 
 The implementation were all done in Java and can be found under the **problems** package.
 
-The reference book is **Introduction to Design and Algorithms** by **Anany Levitin**
+The reference book is **Introduction to Design and Analysis of Algorithms** by **Anany Levitin**
 
 The chapters are:
  - Chapter 8.1
  - Chapter 8.2
+ - Chapter 9
