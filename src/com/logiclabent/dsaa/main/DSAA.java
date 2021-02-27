@@ -1,7 +1,5 @@
 package com.logiclabent.dsaa.main;
-import com.logiclabent.dsaa.problems.Assignment1;
-import com.logiclabent.dsaa.problems.ChangeMaking;
-import com.logiclabent.dsaa.problems.CoinRow;
+import com.logiclabent.dsaa.problems.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,4 +50,5 @@ public class DSAA {
         System.out.println(assignment1.minSumPathv2(A));
         System.out.println(assignment1.worldSeries(4,0.40));
     }
+
 }

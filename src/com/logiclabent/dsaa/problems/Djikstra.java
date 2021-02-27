@@ -2,114 +2,177 @@ package com.logiclabent.dsaa.problems;
 
 import java.util.*;
 
-public class Djikstra {
-    PriorityQueue<Node> Q;
+class Djikstra{
 
-    void Initialize(PriorityQueue Q)
+    public PriorityQueue Initialize()
     {
-        this.Q=Q;
+        PriorityQueue<Node> q=new PriorityQueue<Node>();
+        return q;
     }
-    void Insert(PriorityQueue Q,Node v,int d)
+    public Node DeleteMin(PriorityQueue q,Node n)
     {
-       int len=Q.size();
-       if(len==0)
-       {
-           Q.add(v);
-       }else
-       {
-           Q.add(v);
-       }
+         q.remove(n);
+         return n;
     }
-    Node DeleteMin(PriorityQueue Q)
+    public PriorityQueue Insert(PriorityQueue q,Node n)
     {
+        q.add(n);
+        return q;
+    }
 
-       Node[] nodes = (Node[])Q.toArray(new Node[Q.size()]);
-       Arrays.sort(nodes, Q.comparator());
-       Node star = nodes[0];
-       for (int k=1;k<nodes.length;k++) {
-            Node temp=nodes[k];
-            if(temp.weight < star.weight)
-            {
-                star=temp;
+    public void dijkstra(Graph g,Node source){
+
+        source.weight = 0; //distance of source to source should be zero
+        //initialize priority queue
+        PriorityQueue<Node> queue = Initialize();
+        //add source to queue.
+        queue=Insert(queue,source);
+
+        while(!queue.isEmpty()){
+
+            Node u = queue.poll();
+
+            for(Edge edge:u.edges){
+                int weight = u.weight+edge.weight;
+
+                if(edge.n.weight>weight){
+                    // Remove the node from the queue to update the weight value.
+                    DeleteMin(queue,edge.n);
+                    edge.n.weight = weight;
+
+                    // handle the paths
+                    edge.n.path = new LinkedList<Node>(u.path);
+                    edge.n.path.add(u);
+
+                    //Decrease queue with new weight
+                    queue=Insert(queue,edge.n);
+                }
             }
         }
-        Q.remove(star);
-        return  star;
     }
-    void Decrease(PriorityQueue Q,Node v,int d)
-    {
+
+    public static void main(String[] arg){
+
+        Djikstra dji = new Djikstra();
+
+        // Create a new graph with a number of nodes.
+        // In this case 5 as represented in page 336 of the course textbook
+        Graph g = new Graph(5);
+
+        // Add the edges
+        g.addEdge(0,1,3);
+        g.addEdge(0,3,7);
+        g.addEdge(1,3,2);
+        g.addEdge(1,2,4);
+        g.addEdge(2,4,6);
+        g.addEdge(3,2,5);
+        g.addEdge(3,4,4);
+
+
+
+        // handle shorterst path calculation using dijkstra's algorithm.
+        dji.dijkstra(g,g.listNode(0));
+
+        // lists all the paths available...
+        for(Node n:g.listNodes()){
+            System.out.print("Node("+n+"), Minimum Weight: "+ n.weight+" , Path -> ");
+            for(Node path:n.path) {
+                System.out.print(path+" ");
+            }
+            System.out.println(""+n);
+        }
 
     }
 
-    void dijkstra(Graph graph,Node s)
-    {
-         Initialize(this.Q);
-         for(List<Node> n : graph.matrix)
-         {
-           int dn= Integer.MAX_VALUE;
-           int pv=0;
-           Insert(this.Q,n.get(0),dn);
-         }
-         int ds=0;
-         Decrease(Q,s,ds);
-         Set<Node> Vt = Collections.emptySet();
-         for(int i=0;i<graph.matrix.size();i++)
-         {
-             Node ustar=DeleteMin(this.Q);
-             Vt.add(ustar);
-             for(Node u : graph.matrix.removeAll(Vt))
-             {
-                 if(ustar.weight + (ustar.weight - u.weight)< u.weight)
-                 {
-                     //the question that arises here is; how is w(u*, u) represented mathematically. is minus or plus
-                     int du= ustar.weight + (ustar.weight-u.weight);
-                     Node pu=ustar;
-                     Decrease(Q,u,du);
-                 }
-             }
-         }
-
-    }
 }
 
-//define an edge class which is basically a source, a destination and weights on it
+/**
+ * this defines an edge which is a node and its corresponding weight
+ */
 class Edge
 {
-    int source,destination,weight;
-    Edge(int source,int destination,int weight)
+    public Node n;
+    public int weight;
+
+    public Edge(Node n,int weight)
     {
-        this.source=source;
-        this.destination=destination;
+        this.n=n;
         this.weight=weight;
     }
 }
-//define the nodes of a graph that represents the adjacency matrix
-class Node
-{
-   int value,weight;
-   Node(int value,int weight)
+
+/**
+ * defines a node of a class which is basically a name and connected edges
+ * This implements the comparable class which enables two nodes to be compared(based on weights) and return
+ * the minimum weight
+ */
+class Node implements Comparable<Node> {
+   public String name="";
+   public List<Edge> edges;
+   int weight=Integer.MAX_VALUE;
+   public List<Node> path;
+   Node(String value)
    {
-       this.value=value;
+       this.name=value;
        this.weight=weight;
+       edges=new ArrayList<Edge>();
+       path=new LinkedList<Node>();
    }
+   public String toString()
+   {
+       return name;
+   }
+
+    @Override
+    public int compareTo(Node o) {
+        return Integer.compare(this.weight,o.weight);
+    }
 }
 
+/**
+ * Graph object that represents all nodes and edges.
+ */
 class Graph
 {
-    //the linear representation of the graph called the adjacency matrix
-    List<List<Node>> matrix=new ArrayList<>();
+    private ArrayList<Node> nodes;
 
-    Graph(List<Edge> edges)
-    {
-        //initial adjacency matrix with indices of edges
-        for(int i=0;i<edges.size();i++)
-        {
-            matrix.add(i,new ArrayList<>());
-        }
-        //add edges to the graph
-        for(Edge e : edges)
-        {
-            matrix.get(e.source).add(new Node(e.destination,e.weight));
+    /**
+     * defines a Graph object by passing the number of nodes.
+     * @param num the number of nodes of a graph.
+     */
+    public Graph(int num){
+        nodes = new ArrayList<Node>(num);
+        for(int i=0;i<num;i++){
+            nodes.add(new Node("n"+Integer.toString(i)));
         }
     }
+    /**
+     * This adds an edge to a particular node
+     * @param src the source node
+     * @param dest the destination node
+     * @param weight the weight that is on the said source and destination node.
+     */
+    public void addEdge(int src, int dest, int weight){
+        Node s = nodes.get(src);
+        Edge edge = new Edge(nodes.get(dest),weight);
+        s.edges.add(edge);
+    }
+
+    /**
+     *
+     * @return all nodes in a graph
+     */
+    public ArrayList<Node> listNodes() {
+        return nodes;
+    }
+
+    /**
+     * list a node at a location
+     * @param n the location whose node is being returned.
+     * @return a node
+     */
+    public Node listNode(int n){
+        return nodes.get(n);
+    }
+
 }
